@@ -1,0 +1,71 @@
+# This Is a compatibility compiler that emulates VRamen
+# It should not be used with new programs
+
+# It can also not be used to create new runtimes
+
+VSC.compilerAlpha() {
+
+#Application/Module configuration
+if [ "$APP_TYPE" == "lib" ]
+then
+
+  rm -f $APP_NAME.vmod
+  touch $APP_NAME.vmod
+
+  for class in $(ls src); do
+    cat src/$class >> $APP_NAME.vmod
+    echo "Added class $class to module"
+  done
+  echo 'loadedMods="$loadedMods\n'"$APP_NAME V$APP_VERSION: $APP_FUZZY_NAME"'"' >> $APP_NAME.vmod
+fi
+
+if [ "$APP_TYPE" == "app" ]
+then
+
+  rm -f *.vs
+  touch "$APP_NAME.vs"
+  echo '#!/bin/bash' >> $APP_NAME.vs
+  echo "Created empty app bundle"
+
+
+
+  vramen.appdata "$APP_NAME.vs"
+  echo "Added app data to bundle"
+
+  if [ -e include/vsruntime.base ]
+  then
+    cat include/vsruntime.base >> $APP_NAME.vs
+  else
+    echo "WARNING: Missing VRuntime, this is usually required for vramen based applications to work"
+  fi
+    for mod in $(ls include/*.vmod)
+    do
+      cat mods/$mod >> $APP_NAME.vs
+    done
+  if [ ! -e src/main ]
+  then
+    echo "INFO: Main class not found, exiting"
+    exit
+  fi
+  for class in $(ls src)
+  do
+    cat src/$class >> $APP_NAME.vs
+  done
+  echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $APP_NAME.vs
+  echo 'then' >> $APP_NAME.vs
+  echo 'main $@' >> $APP_NAME.vs
+  echo 'fi' >> $APP_NAME.vs
+  chmod 755 $APP_NAME.vs
+fi
+
+
+}
+
+vramen.appdata(){
+  echo 'APP_NAME='"\"$APP_NAME\"" >> $1
+  echo 'APP_FUZZY_NAME='"\"$APP_FUZZY_NAME\"" >> $1
+  echo 'APP_VERSION='$APP_VERSION >> $1
+  echo 'COMPILER='"VSC_Alpha - VRamen Compatibility" >> $1
+  echo '' >> $1
+  echo '# END AppData' >> $1
+}

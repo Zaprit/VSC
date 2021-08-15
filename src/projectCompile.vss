@@ -1,0 +1,37 @@
+VSC.projectCompile(){
+ echo "Build Configuration Found... Compiling Project"
+ if [ -e $VSC_PROG_NAME.vsa ] || [ -e $VSC_PROG_NAME.vsl ]
+ then
+  rm -f $VSC_PROG_NAME.vsa $VSC_PROG_NAME.vsl
+ fi
+
+ if [ "$VSC_PROG_TYPE" == "app" ]
+ then
+  echo '#!/bin/bash' >> $VSC_PROG_NAME.vsa
+ fi
+
+ VSC_SRC_FILE_COUNT="$(ls -1 $VSC_SRC_LOCATION/*.vss | wc -l)"
+ VSC_SRC_FILE_CURRENT_COUNT=1
+ for f in $(find $VSC_SRC_LOCATION/ -type f -name *.vss )
+ do
+  echo Compiling $f
+  # Alpha is the vramen compatibility layer
+  if [ VSC_COMPILER=alpha ]
+  then
+   VSC.compilerAlpha $f
+  elif [ VSC_COMPILER=beta ] || [ -z ${VSC_COMPILER+x} ]
+  then
+   # Beta is the "standard" VSC compiler
+   VSC.compilerBeta $f $VSC_SRC_FILE_CURRENT_COUNT $VSC_SRC_FILE_COUNT
+  fi
+  VSC_SRC_FILE_CURRENT_COUNT=$((VSC_SRC_FILE_CURRENT_COUNT+1))
+ done
+ if [ "$VSC_PROG_TYPE" == "app" ]
+ then
+  VSC.commitMetadata $VSC_PROG_NAME.vsa
+  echo 'if [ "$1" != "--getdata" ]' >> $VSC_PROG_NAME.vsa
+  echo 'then' >> $VSC_PROG_NAME.vsa
+  echo 'main $@' >> $VSC_PROG_NAME.vsa
+  echo 'fi' >> $VSC_PROG_NAME.vsa
+ fi
+}

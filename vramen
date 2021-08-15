@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# VRAMEN MAINTENANCE RELEASE FOR VSC
+
+# This only exists to compile vsc for those who don't have vsc. Essentially trying not to pull a
+# Golang where you need the build tools to make the build tools
+
+# This has been modified in a way that just compiles VSC, it is essentially
+# VSC but without any nice things.
+# Use the VSC that this thing drops out to compile a clean version of VSC.
+
+# I WILL NOT BE RESPONSIBLE IF YOU USE THIS WRONG AND GREMLINS COME OUT OF YOUR ARSE
+
+#Application/Module configuration
+APP_NAME="vsc"
+APP_VERSION="NOT FOR PRODUCTION"
+APP_FUZZY_NAME="VScript Compiler | VRAMEN BUILD"
+
+#Past here... You don't want to go
+
+appdata(){
+  echo 'APP_NAME='"\"$APP_NAME\"" >> $1
+  echo 'APP_FUZZY_NAME='"\"$APP_FUZZY_NAME\"" >> $1
+  echo 'APP_VERSION='"\"$APP_VERSION\"" >> $1
+  echo '' >> $1
+  echo "# This was compiled by VRamen at $(date)" >> $1
+  echo '# As this was compiled by vramen it may not be a stable build or have the latest features' >> $1
+  echo '# Please recompile vsc using this binary (or another vsc build) for the best experience' >> $1
+}
+
+# Husks of old code
+rm -f $APP_NAME
+touch "$APP_NAME"
+echo '#!/bin/bash' >> $APP_NAME
+echo "Created empty app bundle"
+appdata "$APP_NAME"
+echo "Added app data to bundle"
+if [ -e include/vsruntime.base ]
+then
+  cat include/vsruntime.base >> $APP_NAME
+else
+ rm -rf $APP_NAME
+ echo "ERROR: Missing runtime."
+ exit
+fi
+if [ ! -e src/main.vss ]
+then
+  echo "Main class not found, which is required for an app. Since this is VSC then how did you break it quite so badly????"
+  exit
+fi
+for class in $(ls src)
+do
+  echo "Compiling: $class..."
+  cat src/$class >> $APP_NAME
+  echo "Done"
+done
+echo "Finished compiling"
+echo "Adding appinfo Compatibility"
+echo 'if [ "$1" != "--getdata" ]' >> $APP_NAME
+echo 'then' >> $APP_NAME
+echo 'main $@' >> $APP_NAME
+echo 'fi' >> $APP_NAME
+echo 'echo "Please recompile VSC using VSC for a cleaner build"' >> "$APP_NAME"
+chmod 755 $APP_NAME
+echo "Done, please recompile with vsc for a nicer build experience"

@@ -1,0 +1,11 @@
+VSC.compileSourceBeta() {
+ # Check if the file exists
+ if [ -f "$1" ]
+ then 
+
+  echo "we should be compiling here"    
+ 
+ else
+  throw "FILE $1 DOES NOT EXIST"
+ fi
+}
