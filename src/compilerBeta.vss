@@ -35,7 +35,7 @@ VSC.compilerBeta(){
   cat "$SRC_FILE" >> "$OUT_FILE"
 
   echo "loadedMods=\"n/a due to VSC compilation\"" >> $OUT_FILE
-  echo "compiler=\"VSC\"" >> $OUT_FILE
+  echo "compiler=\"VSCbeta\"" >> $OUT_FILE
 
   if ! [ $VSC_PROG_TYPE == "lib" ]
   then

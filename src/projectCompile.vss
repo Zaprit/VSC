@@ -1,25 +1,27 @@
 VSC.projectCompile(){
  echo "Build Configuration Found... Compiling Project"
- if [ -e $VSC_PROG_NAME.vsa ] || [ -e $VSC_PROG_NAME.vsl ]
+ if [ -e $VSC_OUTPUT_FILENAME ]
  then
-  rm -f $VSC_PROG_NAME.vsa $VSC_PROG_NAME.vsl
+  rm -f $VSC_OUTPUT_FILENAME
  fi
 
  if [ "$VSC_PROG_TYPE" == "app" ]
  then
-  echo '#!/bin/bash' >> $VSC_PROG_NAME.vsa
+  echo '#!/bin/bash' >> $VSC_OUTPUT_FILENAME
  fi
-
+ echo $VSC_OUTPUT_FILENAME bees
  VSC_SRC_FILE_COUNT="$(ls -1 $VSC_SRC_LOCATION/*.vss | wc -l)"
  VSC_SRC_FILE_CURRENT_COUNT=1
- for f in $(find $VSC_SRC_LOCATION/ -type f -name *.vss )
+ echo "Compiler: $VSC_COMPILER"
+ for f in $(find $VSC_SRC_LOCATION -type f -name *.vss )
  do
-  echo Compiling $f
+  echo
+  echo "[$(((VSC_SRC_FILE_CURRENT_COUNT/VSC_SRC_FILE_CURRENT_COUNT)*100))%] Compiling $f"
   # Alpha is the vramen compatibility layer
-  if [ VSC_COMPILER=alpha ]
+  if [ VSC_COMPILER == "alpha" ]
   then
-   VSC.compilerAlpha $f
-  elif [ VSC_COMPILER=beta ] || [ -z ${VSC_COMPILER+x} ]
+   VSC.compilerAlpha $f $VSC_OUTPUT_FILENAME
+ elif [ VSC_COMPILER == "beta" ] || [ -z ${VSC_COMPILER+x} ]
   then
    # Beta is the "standard" VSC compiler
    VSC.compilerBeta $f $VSC_SRC_FILE_CURRENT_COUNT $VSC_SRC_FILE_COUNT

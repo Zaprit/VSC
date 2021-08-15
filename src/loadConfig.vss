@@ -8,7 +8,7 @@ VSC.loadConfig(){
 
  # Load System Configuration
  if [ -e /etc/VScript/$VS_VERSION/VSC-build.conf ]
- then 
+ then
  source /etc/VScript/$VS_VERSION/VSC-build.conf
  fi
 
@@ -16,10 +16,21 @@ VSC.loadConfig(){
  if [ -e ./build.conf ]
  then
   LIBPATHOLD=$VSC_LIB_PATH
-  source ./build.conf  
+  source ./build.conf
   VSC_LIB_PATH="$LIBPATHOLD $VSC_LIB_PATH"
  else
   echo "Missing build.conf: using default config"
  fi
- echo "Loaded Configuration"
+
+  if [ -z ${VSC_OUTPUT_FILENAME+x} ]
+  then
+    if [ "$VSC_PROG_TYPE" == "app" ]
+    then
+      VSC_OUTPUT_FILENAME=$VSC_PROG_NAME.vsa
+    elif [ "$VSC_PROG_TYPE" == "lib" ]
+    then
+      VSC_OUTPUT_FILENAME=$VSC_PROG_NAME.vsl
+    fi
+  fi
+  echo "Loaded Configuration"
 }
