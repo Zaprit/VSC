@@ -1,58 +1,65 @@
 VSC.projectCompile(){
- echo "Build Configuration Found... Compiling Project"
- if [ -e $VSC_OUTPUT_FILENAME ]
- then
-  rm -f $VSC_OUTPUT_FILENAME
- fi
-
- if [ "$VSC_PROG_TYPE" == "app" ]
- then
-  echo '#!/bin/bash' >> $VSC_OUTPUT_FILENAME
- fi
- echo "Compiling $VSC_OUTPUT_FILENAME With VSC Compiler $VSC_COMPILER"
- VSC_SRC_FILE_COUNT="$(ls -1 $VSC_SRC_LOCATION/*.vss | wc -l)"
- VSC_SRC_FILE_CURRENT_COUNT=1
- for f in $(find $VSC_SRC_LOCATION -type f -name *.vss )
- do
-
-  local PERCENT=$(awk -vn="$VSC_SRC_FILE_CURRENT_COUNT" -vx="$VSC_SRC_FILE_COUNT" 'BEGIN{printf("%.0f\n",n/x*100)}')
-  echo -en "\033[2K"
-  echo -en "\r[$PERCENT%] Compiling $f"
-  sleep 0.05s
-
-  # Alpha is the vramen compatibility layer
-  if [ VSC_COMPILER == "alpha" ]
+  echo "Build Configuration Found... Compiling Project"
+  if [ -e $VSC_OUTPUT_FILENAME ]
   then
-   VSC.compilerAlpha $f $VSC_OUTPUT_FILENAME
-   if [ -e include/vsruntime.base ]
-   then
-     cat include/vsruntime.base >> $2
-   else
-     echo "WARNING: Missing VRuntime, this is usually required for vramen based applications to work"
-   fi
-   for mod in $(ls include/*.vmod)
-   do
-     cat mods/$mod >> $VSC_OUTPUT_FILENAME
-   done
-   echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $VSC_OUTPUT_FILENAME
-   echo 'then' >> $VSC_OUTPUT_FILENAME
-   echo 'main $@' >> $VSC_OUTPUT_FILENAME
-   echo 'fi' >> $VSC_OUTPUT_FILENAME
-   chmod 755 $VSC_OUTPUT_FILENAME
- elif [ VSC_COMPILER == "beta" ] || [ -z ${VSC_COMPILER+x} ]
-  then
-   # Beta is the "standard" VSC compiler
-   VSC.compilerBeta $f $VSC_OUTPUT_FILENAME
+    rm -f $VSC_OUTPUT_FILENAME
   fi
-  VSC_SRC_FILE_CURRENT_COUNT=$((VSC_SRC_FILE_CURRENT_COUNT+1))
- done
- echo -e "\n Done! Compiled $VSC_SRC_FILE_COUNT files"
- if [ "$VSC_PROG_TYPE" == "app" ]
- then
-  VSC.commitMetadata $VSC_PROG_NAME.vsa
-  echo 'if [ "$1" != "--getdata" ]' >> $VSC_PROG_NAME.vsa
-  echo 'then' >> $VSC_PROG_NAME.vsa
-  echo 'main $@' >> $VSC_PROG_NAME.vsa
-  echo 'fi' >> $VSC_PROG_NAME.vsa
- fi
+
+  if [ "$VSC_PROG_TYPE" == "app" ]
+  then
+    echo '#!/bin/bash' >> $VSC_OUTPUT_FILENAME
+  fi
+
+  echo "Compiling $VSC_OUTPUT_FILENAME With VSC Compiler $VSC_COMPILER"
+  VSC_SRC_FILE_COUNT="$(ls -1 $VSC_SRC_LOCATION/*.vss | wc -l)"
+  VSC_SRC_FILE_CURRENT_COUNT=1
+
+  for f in $(find $VSC_SRC_LOCATION -type f -name *.vss )
+  do
+    local PERCENT=$(awk -vn="$VSC_SRC_FILE_CURRENT_COUNT" -vx="$VSC_SRC_FILE_COUNT" 'BEGIN{printf("%.0f\n",n/x*100)}')
+    echo -en "\033[2K"
+    echo -en "\r[$PERCENT%] Compiling $f"
+    sleep 0.05s
+
+    # Alpha is the vramen compatibility layer
+    if [ VSC_COMPILER == "alpha" ]
+    then
+      VSC.compilerAlpha $f $VSC_OUTPUT_FILENAME
+      if [ -e include/vsruntime.base ]
+      then
+        cat include/vsruntime.base >> $2
+      else
+        echo "WARNING: Missing VRuntime, this is usually required for vramen based applications to work"
+      fi
+      for mod in $(ls include/*.vmod)
+      do
+        cat mods/$mod >> $VSC_OUTPUT_FILENAME
+      done
+      echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $VSC_OUTPUT_FILENAME
+      echo 'then' >> $VSC_OUTPUT_FILENAME
+      echo 'main $@' >> $VSC_OUTPUT_FILENAME
+      echo 'fi' >> $VSC_OUTPUT_FILENAME
+      chmod 755 $VSC_OUTPUT_FILENAME
+    elif [ VSC_COMPILER == "beta" ] || [ -z ${VSC_COMPILER+x} ]
+      then
+      # Beta is the "standard" VSC compiler
+      VSC.compilerBeta $f $VSC_OUTPUT_FILENAME
+      echo -n 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]; ' >> $VSC_OUTPUT_FILENAME
+      echo -n 'then; ' >> $VSC_OUTPUT_FILENAME
+      echo -n 'main $@; ' >> $VSC_OUTPUT_FILENAME
+      echo 'fi' >> $VSC_OUTPUT_FILENAME
+    fi
+    VSC_SRC_FILE_CURRENT_COUNT=$((VSC_SRC_FILE_CURRENT_COUNT+1))
+  done
+
+  echo -e "\n Done! Compiled $VSC_SRC_FILE_COUNT files"
+
+  if [ "$VSC_PROG_TYPE" == "app" ]
+  then
+    VSC.commitMetadata $VSC_PROG_NAME.vsa
+    echo 'if [ "$1" != "--getdata" ]' >> $VSC_PROG_NAME.vsa
+    echo 'then' >> $VSC_PROG_NAME.vsa
+    echo 'main $@' >> $VSC_PROG_NAME.vsa
+    echo 'fi' >> $VSC_PROG_NAME.vsa
+  fi
 }
