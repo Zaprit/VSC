@@ -3,7 +3,7 @@ main(){
  VSC.loadConfig
  if [ "$1" == "make" ]
  then
-  VSC.makeConfig
+  VSC.makeConfig $@
   exit
  fi
 
