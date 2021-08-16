@@ -10,7 +10,6 @@ main(){
  if [ -f "build.conf" ] && [ $# == 0 ] || [ "$1" == "-p" ]
  then
   VSC.projectCompile
-  echo "Done Compiling $VSC_PROG_NAME"
  else
   if [ $# > 1 ]
   then
@@ -29,7 +28,7 @@ main(){
   else
    VSC.compileSource $1
   fi
-  echo "Finished Compiling $1"
+  echo "Done Compiling $1"
  fi
  rm -f 1
 }

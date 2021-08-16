@@ -5,7 +5,7 @@ VSC.loadConfig(){
  VSC_PROG_VERSION="1.0"
  VSC_PROG_DISPLAY_NAME="Untitled-VSC-Application"
  VSC_PROG_TYPE="app"
-
+ VSC_COMPILER="beta"
  # Load System Configuration
  if [ -e /etc/VScript/$VS_VERSION/VSC-build.conf ]
  then

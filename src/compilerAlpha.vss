@@ -6,9 +6,9 @@
 VSC.compilerAlpha() {
 
   #Application/Module configuration
-  if [ "$APP_TYPE" == "lib" ]
+  if [ "$VSC_APP_TYPE" == "lib" ] && [ "$VSC_APP_TYPE" == "mod" ]
   then
-    cat src/$class >> $2
+    cat $1 >> $2
     echo "Added class $class to module"
     echo 'loadedMods="$loadedMods\n'"$APP_NAME V$APP_VERSION: $APP_FUZZY_NAME"'"' >> $APP_NAME.vmod
   fi
@@ -23,16 +23,7 @@ VSC.compilerAlpha() {
     vramen.appdata "$APP_NAME.vs"
     echo "Added app data to bundle"
 
-    if [ -e include/vsruntime.base ]
-    then
-      cat include/vsruntime.base >> $2
-    else
-      echo "WARNING: Missing VRuntime, this is usually required for vramen based applications to work"
-    fi
-      for mod in $(ls include/*.vmod)
-      do
-        cat mods/$mod >> $APP_NAME.vs
-      done
+
     if [ ! -e src/main ]
     then
       echo "INFO: Main class not found, exiting"
@@ -42,11 +33,6 @@ VSC.compilerAlpha() {
     do
       cat src/$class >> $2
     done
-    echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $APP_NAME.vs
-    echo 'then' >> $2
-    echo 'main $@' >> $2
-    echo 'fi' >> $2
-    chmod 755 $2
   fi
 
 

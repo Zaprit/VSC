@@ -2,13 +2,8 @@ VSC.compilerBeta(){
  # If we are doing a single file compile
  if ! [ -f build.conf ]
  then
-  var SRC_FILE=${1%.*}.vss
-  if [ $VSC_PROG_TYPE == "lib" ]
-  then
-   var OUT_FILE=${1%.*}.vsl
-  else
-   var OUT_FILE=${1%.*}.vsa
-  fi
+  var SRC_FILE=$1
+  OUT_FILE="$2"
   rm -f $OUT_FILE
   # Import Handling
   # Get all imports from file after making sure that we have imports.
@@ -48,21 +43,14 @@ VSC.compilerBeta(){
   # Remove all comments from output class
   sed -i '/^#/d' $OUT_FILE
   sed -i '/^\<package\>/d' $OUT_FILE
-  if [ "$VSC_APP_TYPE" != "lib" ]
-  then
-   sed -i '/^\<include\>/d' $OUT_FILE
-  fi
+  sed -i '/^\<include\>/d' $OUT_FILE
   VSC.commitMetadata $OUT_FILE
 
  #if we are doing a project compile
  else
   SRC_FILE=$1
-  if [ "$VSC_PROG_TYPE" == "lib" ]
-  then
-   OUT_FILE=$VSC_PROG_NAME.vsl
-  else
-   OUT_FILE=$VSC_PROG_NAME.vsa
-  fi
+  OUT_FILE=$2
+
   # Import Handling
   # Get all imports from file after making sure that we have imports.
   if [ "$VSC_APP_TYPE" != "lib" ]
