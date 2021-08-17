@@ -4,16 +4,14 @@ VSC.projectCompile(){
   then
     rm -f $VSC_OUTPUT_FILENAME
   fi
-
+  touch $VSC_OUTPUT_FILENAME
   if [ "$VSC_PROG_TYPE" == "app" ]
   then
     echo '#!/bin/bash' >> $VSC_OUTPUT_FILENAME
   fi
-
   echo "Compiling $VSC_OUTPUT_FILENAME With VSC Compiler $VSC_COMPILER"
   VSC_SRC_FILE_COUNT="$(ls -1 $VSC_SRC_LOCATION/*.vss | wc -l)"
   VSC_SRC_FILE_CURRENT_COUNT=1
-
   for f in $(find $VSC_SRC_LOCATION -type f -name *.vss )
   do
     local PERCENT=$(awk -vn="$VSC_SRC_FILE_CURRENT_COUNT" -vx="$VSC_SRC_FILE_COUNT" 'BEGIN{printf("%.0f\n",n/x*100)}')
@@ -22,12 +20,12 @@ VSC.projectCompile(){
     sleep 0.05s
 
     # Alpha is the vramen compatibility layer
-    if [ VSC_COMPILER == "alpha" ]
+    if [ $VSC_COMPILER == "alpha" ]
     then
       VSC.compilerAlpha $f $VSC_OUTPUT_FILENAME
-      if [ -e include/vsruntime.base ]
+      if [ -e include/vsruntime.base ] && [ "$VSC_APP_TYPE" == "app" ]
       then
-        cat include/vsruntime.base >> $2
+        cat include/vsruntime.base >> $VSC_OUTPUT_FILENAME
       else
         echo "WARNING: Missing VRuntime, this is usually required for vramen based applications to work"
       fi
@@ -35,25 +33,22 @@ VSC.projectCompile(){
       do
         cat mods/$mod >> $VSC_OUTPUT_FILENAME
       done
-      echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $VSC_OUTPUT_FILENAME
-      echo 'then' >> $VSC_OUTPUT_FILENAME
-      echo 'main $@' >> $VSC_OUTPUT_FILENAME
-      echo 'fi' >> $VSC_OUTPUT_FILENAME
-      chmod 755 $VSC_OUTPUT_FILENAME
-    elif [ VSC_COMPILER == "beta" ] || [ -z ${VSC_COMPILER+x} ]
+      if [ "$VSC_APP_TYPE" == "app" ]
       then
+        echo 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]' >> $VSC_OUTPUT_FILENAME
+        echo 'then' >> $VSC_OUTPUT_FILENAME
+        echo 'main $@' >> $VSC_OUTPUT_FILENAME
+        echo 'fi' >> $VSC_OUTPUT_FILENAME
+        chmod 755 $VSC_OUTPUT_FILENAME
+      fi
+    elif [ $VSC_COMPILER == "beta" ] || [ -z ${VSC_COMPILER+x} ]
+    then
       # Beta is the "standard" VSC compiler
       VSC.compilerBeta $f $VSC_OUTPUT_FILENAME
-      echo -n 'if [[ "$1" != "--getdata" && VSCRIPT_APPINFO_NO_EXEC == 1 ]]; ' >> $VSC_OUTPUT_FILENAME
-      echo -n 'then; ' >> $VSC_OUTPUT_FILENAME
-      echo -n 'main $@; ' >> $VSC_OUTPUT_FILENAME
-      echo 'fi' >> $VSC_OUTPUT_FILENAME
     fi
     VSC_SRC_FILE_CURRENT_COUNT=$((VSC_SRC_FILE_CURRENT_COUNT+1))
   done
-
   echo -e "\n Done! Compiled $VSC_SRC_FILE_COUNT files"
-
   if [ "$VSC_PROG_TYPE" == "app" ]
   then
     VSC.commitMetadata $VSC_PROG_NAME.vsa
