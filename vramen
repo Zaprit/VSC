@@ -35,13 +35,12 @@ echo '#!/bin/bash' >> $APP_NAME
 echo "Created empty app bundle"
 appdata "$APP_NAME"
 echo "Added app data to bundle"
-if [ -e include/vsruntime.base ]
+if [ -e include.old/vsruntime.base ]
 then
-  cat include/vsruntime.base >> $APP_NAME
+  cat include.old/vsruntime.base >> $APP_NAME
 else
  rm -rf $APP_NAME
  echo "ERROR: Missing runtime."
- exit
 fi
 if [ ! -e src/main.vss ]
 then

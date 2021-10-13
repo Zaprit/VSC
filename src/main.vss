@@ -13,7 +13,7 @@ main(){
  else
   if [ $# > 1 ]
   then
-   if [ $1 == "-I" ]
+   if [ "$1" == "-I" ]
    then
     if [ -d "$2" ]
     then

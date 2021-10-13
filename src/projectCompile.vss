@@ -51,6 +51,8 @@ VSC.projectCompile(){
   echo -en "\033[2K"
   echo -en "\r[$PERCENT%] Done! Compiled$VSC_SRC_FILE_COUNT files\n"
   #echo -e "\n Done! Compiled $VSC_SRC_FILE_COUNT files"
+  echo "loadedmods=\"n/a due to VSC compilation\"" >> $VSC_PROG_NAME.vsa
+  echo "compiler=\"VSC$VSC_COMPILER\"" >> $VSC_PROG_NAME.vsa
   if [ "$VSC_PROG_TYPE" == "app" ]
   then
     VSC.commitMetadata $VSC_PROG_NAME.vsa

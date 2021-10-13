@@ -29,7 +29,7 @@ VSC.compilerBeta(){
   fi
   cat "$SRC_FILE" >> "$OUT_FILE"
 
-  echo "loadedMods=\"n/a due to VSC compilation\"" >> $OUT_FILE
+  echo "loadedmods=\"n/a due to VSC compilation\"" >> $OUT_FILE
   echo "compiler=\"VSCbeta\"" >> $OUT_FILE
 
   if ! [ $VSC_PROG_TYPE == "lib" ]
@@ -41,9 +41,18 @@ VSC.compilerBeta(){
   fi
 
   # Remove all comments from output class
-  sed -i '/^#/d' $OUT_FILE
+  case $(uname) in
+  "Darwin")
+  sed -i '' '/#/!b;s/^/\n/;ta;:a;s/\n$//;t;s/\n\(\("[^"]*"\)\|\('\''[^'\'']*'\''\)\)/\1\n/;ta;s/\n\([^#]\)/\1\n/;ta;s/\n.*//' $OUT_FILE
+  sed -i '' '/^package/d' $OUT_FILE
+  sed -i '' '/^include/d' $OUT_FILE
+  ;;
+  *)
+  sed -i '/#/!b;s/^/\n/;ta;:a;s/\n$//;t;s/\n\(\("[^"]*"\)\|\('\''[^'\'']*'\''\)\)/\1\n/;ta;s/\n\([^#]\)/\1\n/;ta;s/\n.*//' $OUT_FILE
   sed -i '/^\<package\>/d' $OUT_FILE
   sed -i '/^\<include\>/d' $OUT_FILE
+  ;;
+  esac
   VSC.commitMetadata $OUT_FILE
 
  #if we are doing a project compile
@@ -74,6 +83,17 @@ VSC.compilerBeta(){
   fi
   fi
   cat $1 >> $OUT_FILE
-
+  case $(uname) in
+  "Darwin")
+  sed -i '' '/^[[:space:]]*#[^!]/d; /#$/d' $OUT_FILE
+  sed -i '' '/^package/d' $OUT_FILE
+  sed -i '' '/^include/d' $OUT_FILE
+  ;;
+  *)
+  sed -i '/^[[:space:]]*#[^!]/d; /#$/d' $OUT_FILE
+  sed -i '/^\<package\>/d' $OUT_FILE
+  sed -i '/^\<include\>/d' $OUT_FILE
+  ;;
+  esac
  fi
 }
